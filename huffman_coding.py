@@ -18,7 +18,21 @@ class NodeTree(object):
 
     def __str__(self):
         return '%s_%s' % (self.left, self.right)
-
+    
+# Function to decode a message using a given huffman tree
+def huffman_decode(encoded_string, huffman_tree):
+    decoded_string = ''
+    current_node = huffman_tree
+    for bit in encoded_string:
+        if bit == '0':
+            current_node = current_node.left
+        else:
+            current_node = current_node.right
+        
+        if isinstance(current_node, str):
+            decoded_string += current_node
+            current_node = huffman_tree
+    return decoded_string
 
 # Main function implementing huffman coding
 def huffman_code_tree(node, left=True, binString=''):
@@ -66,4 +80,6 @@ encodedString = "".join([huffmanCode[x] for x in string])
 
 print(encodedString)
 
+decodedString = huffman_decode(encodedString, nodes[0][0])
 
+print(decodedString)
