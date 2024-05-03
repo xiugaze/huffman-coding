@@ -1,23 +1,14 @@
-# Huffman Coding in python
+from collections import Counter
 
-string = 'BCAADDDCCACACAC'
+string = "BCAADDDCCACACAC"
 
-
-# Creating tree nodes
 class NodeTree(object):
-
     def __init__(self, left=None, right=None):
         self.left = left
         self.right = right
 
     def children(self):
         return (self.left, self.right)
-
-    def nodes(self):
-        return (self.left, self.right)
-
-    def __str__(self):
-        return '%s_%s' % (self.left, self.right)
     
 # Function to decode a message using a given huffman tree
 def huffman_decode(encoded_string, huffman_tree):
@@ -34,52 +25,44 @@ def huffman_decode(encoded_string, huffman_tree):
             current_node = huffman_tree
     return decoded_string
 
-# Main function implementing huffman coding
-def huffman_code_tree(node, left=True, binString=''):
-    if type(node) is str:
-        return {node: binString}
-    (l, r) = node.children()
+# Function to create a huffman tree
+def huffman_tree(node, binary=''):
+    if isinstance(node, str):
+        return {node: binary}
+    (left, right) = node.children()
     d = dict()
-    d.update(huffman_code_tree(l, True, binString + '0'))
-    d.update(huffman_code_tree(r, False, binString + '1'))
+    d.update(huffman_tree(left, binary + '0'))
+    d.update(huffman_tree(right, binary + '1'))
     return d
 
-
-# Calculating frequency
-freq = {}
-for c in string:
-    if c in freq:
-        freq[c] += 1
-    else:
-        freq[c] = 1
-
-freq = sorted(freq.items(), key=lambda x: x[1], reverse=True)
+freq = Counter(list(string)).most_common()
 
 nodes = freq
 
 while len(nodes) > 1:
+    # Remove last two elements
     (key1, c1) = nodes[-1]
     (key2, c2) = nodes[-2]
     nodes = nodes[:-2]
+
+    # Append new one with summed frequency
     node = NodeTree(key1, key2)
     nodes.append((node, c1 + c2))
 
+    # Sort by most common again
     nodes = sorted(nodes, key=lambda x: x[1], reverse=True)
 
-huffmanCode = huffman_code_tree(nodes[0][0])
+huffman_code = huffman_tree(nodes[0][0])
 
-print(huffmanCode)
-
-
-print(' Char | Huffman code ')
-print('----------------------')
+print('Char | Huffman code')
+print('-------------------')
 for (char, frequency) in freq:
-    print(' %-4r |%12s' % (char, huffmanCode[char]))
+    print('%r  |  %s' % (char, huffman_code[char]))
 
-encodedString = "".join([huffmanCode[x] for x in string])
+encoded_string = ''.join([huffman_code[x] for x in string])
 
-print(encodedString)
+print(encoded_string)
 
-decodedString = huffman_decode(encodedString, nodes[0][0])
+decoded_string = huffman_decode(encoded_string, nodes[0][0])
 
-print(decodedString)
+print(decoded_string)
